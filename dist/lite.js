@@ -1,0 +1,1 @@
+"use strict";Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});const e=require("./useRustle-B1x3IY79.js"),s=require("./cookies-Dw9bISRk.js");exports.RustleBox=e.RustleBox,exports.useRustle=e.useRustle,exports.getLocaleFromCookie=s.getLocaleFromCookie,exports.setLocaleToCookie=s.setLocaleToCookie;
