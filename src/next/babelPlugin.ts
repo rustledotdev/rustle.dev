@@ -60,7 +60,7 @@ function writeMaster(outFile: string, texts: Set<string>, debug?: boolean) {
   }
 }
 
-export default function rustleBabelPlugin({ types: bt }: { types: typeof BabelTypes }, opts: RustleBabelPluginOptions = {}): PluginObj {
+export default function rustleBabelPlugin({ types: bt }: { types: typeof t }, opts: RustleBabelPluginOptions = {}): PluginObj {
   const fileTexts = new Set<string>();
   const outFile = opts.outFile || defaultOutFile();
   const extraAttrs = opts.includeAttributes || [];
