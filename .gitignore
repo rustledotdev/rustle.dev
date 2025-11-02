@@ -16,5 +16,9 @@ yarn-error.log*
 
 # Env files
 .env
+
+# Artifacts
+*.tgz
+
 .env.*
 
