@@ -64,3 +64,16 @@ Note: `rustle-ci` alias prints a deprecation notice. Please update to `rustle-en
 
 ## License
 Apache-2.0 for the SDK. Hosted backend is proprietary under separate Terms of Service.
+
+
+## 🤝 Contributing
+We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details, including branch naming, commits, and CI requirements.
+
+## 📞 Support
+- 🐛 Issues: [GitHub Issues](https://github.com/rustledotdev/rustle.dev/issues)
+- 📖 Documentation: https://rustle.dev/docs
+- 📣 Contact/Feedback: contact@rustle.dev
+
+## FAQ
+- Are .js files with JSX supported?
+  Yes. We process `*.{tsx,jsx,ts,js}` in common source folders and transform-time checks also accept `.js` with JSX.

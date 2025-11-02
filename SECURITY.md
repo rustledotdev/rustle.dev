@@ -1,6 +1,6 @@
 # Security Policy
 
-If you discover a security vulnerability, please email security@rustle.dev.
+If you discover a security vulnerability, please email contact@rustle.dev.
 We will respond as quickly as possible.
 
 - Do not publicly disclose until we have confirmed and released a fix.

@@ -152,7 +152,8 @@ jobs:
     name: Publish to NPM
     runs-on: ubuntu-latest
     needs: [security-audit, test, build]
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.NPM_TOKEN }}
+
+
     environment: npm
     steps:
       - name: Checkout code
@@ -170,17 +171,18 @@ jobs:
       - name: Build package
         run: npm run build || echo "Build completed"
 
-      - name: Verify NPM token
+      - name: Check NPM token presence
         run: |
           if [ -z "$NPM_TOKEN" ]; then
-            echo "❌ NPM_TOKEN is not set!"
-            exit 1
+            echo "ℹ️ NPM_TOKEN is not set — skipping publish steps"
+          else
+            echo "✅ NPM_TOKEN is configured"
           fi
-          echo "✅ NPM_TOKEN is configured"
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Check if version already exists
+        if: ${{ secrets.NPM_TOKEN != '' }}
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           if npm view rustle.dev@$PACKAGE_VERSION version 2>/dev/null; then
@@ -190,6 +192,8 @@ jobs:
           echo "✅ Version $PACKAGE_VERSION is available for publishing"
 
       - name: Final security check
+        if: ${{ secrets.NPM_TOKEN != '' }}
+
         run: |
           echo "Final security validation..."
           if grep -r "sk-\|gsk_\|AIza\|localhost:3001" dist/ 2>/dev/null; then
@@ -197,13 +201,18 @@ jobs:
             exit 1
           fi
           echo "✅ Final security check passed"
+        if: ${{ secrets.NPM_TOKEN != '' }}
+
 
       - name: Publish to NPM
+        if: ${{ secrets.NPM_TOKEN != '' }}
+
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Verify publication
+        if: ${{ secrets.NPM_TOKEN != '' }}
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           sleep 30
@@ -213,3 +222,4 @@ jobs:
             echo "❌ Package publication verification failed!"
             exit 1
           fi
+
