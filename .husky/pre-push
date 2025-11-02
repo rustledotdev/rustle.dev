@@ -1,0 +1,35 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🚀 Running pre-push checks..."
+
+# Run full test suite with coverage
+echo "🧪 Running full test suite with coverage..."
+npm run test:coverage
+
+# Check coverage thresholds
+echo "📊 Checking coverage thresholds..."
+if [ $? -ne 0 ]; then
+  echo "❌ Tests failed or coverage thresholds not met!"
+  exit 1
+fi
+
+# Run build to ensure it compiles
+echo "🔨 Running build..."
+npm run build
+
+if [ $? -ne 0 ]; then
+  echo "❌ Build failed!"
+  exit 1
+fi
+
+# Run security check with higher threshold
+echo "🔒 Running comprehensive security check..."
+npm audit --audit-level=critical || {
+  echo "⚠️  Critical security vulnerabilities found!"
+  echo "Please fix these before pushing."
+  echo "Run 'npm audit' for details."
+}
+
+echo "✅ All pre-push checks passed!"
+

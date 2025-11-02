@@ -1,0 +1,10 @@
+# Ignore everything by default
+*
+
+# Publish only the artifacts and essentials
+!dist/**
+!package.json
+!README.md
+!LICENSE
+!.npmignore
+

@@ -1,0 +1,104 @@
+{
+  "name": "rustle.dev",
+  "version": "1.0.0",
+  "description": "AI-powered translation SDK for React & Next.js applications",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Rustle.dev",
+    "email": "support@rustle.dev",
+    "url": "https://rustle.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rustledotdev/rustle.dev.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rustledotdev/rustle.dev/issues"
+  },
+  "homepage": "https://rustle.dev",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./next": {
+      "types": "./dist/next.d.ts",
+      "import": "./dist/next.mjs",
+      "require": "./dist/next.js"
+    },
+    "./vite": {
+      "types": "./dist/vite.d.ts",
+      "import": "./dist/vite.mjs",
+      "require": "./dist/vite.js"
+    },
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "import": "./dist/config.mjs",
+      "require": "./dist/config.js"
+    },
+    "./engine": {
+      "types": "./dist/engine.d.ts",
+      "import": "./dist/engine.mjs",
+      "require": "./dist/engine.js"
+    }
+  },
+  "files": [
+    "dist/**",
+    "README.md",
+    "LICENSE"
+  ],
+  "bin": {
+    "rustle-manual": "./dist/cli.js",
+    "rustle-engine": "./dist/ci.js",
+    "rustle-ci": "./dist/ci.js"
+  },
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite build --watch",
+    "clean": "rm -rf dist",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "react",
+    "nextjs",
+    "translation",
+    "i18n",
+    "ai",
+    "typescript"
+  ],
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@babel/generator": "^7.28.5",
+    "@babel/parser": "^7.28.5",
+    "@babel/traverse": "^7.28.5",
+    "@babel/types": "^7.28.5",
+    "@types/node": "^20.19.24",
+    "@types/react": "^18.2.61",
+    "@types/react-dom": "^18.2.19",
+    "fast-glob": "^3.3.1",
+    "magic-string": "^0.30.21",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.1.4",
+    "vite-plugin-dts": "^3.7.3",
+    "vitest": "^4.0.5"
+  },
+  "dependencies": {
+    "@swc/core": "^1.14.0",
+    "zod": "^3.25.76"
+  }
+}
