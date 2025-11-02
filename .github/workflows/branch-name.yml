@@ -1,0 +1,24 @@
+name: Enforce branch naming
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  branch-name:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch name format
+        shell: bash
+        run: |
+          BR="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+          echo "Branch: $BR"
+          if [[ ! "$BR" =~ ^[a-z0-9._-]+/(feature|bug|docs|chore|refactor|test|ci|build|perf|style)/[a-z0-9._-]+$ ]]; then
+            echo "❌ Invalid branch name. Use username/type/name (type: feature|bug|docs|chore|refactor|test|ci|build|perf|style)"
+            exit 1
+          fi
+          echo "✅ Branch name format OK"
+

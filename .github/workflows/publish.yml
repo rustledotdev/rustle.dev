@@ -152,7 +152,7 @@ jobs:
     name: Publish to NPM
     runs-on: ubuntu-latest
     needs: [security-audit, test, build]
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.NPM_TOKEN }}
     environment: npm
     steps:
       - name: Checkout code

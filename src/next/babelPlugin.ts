@@ -69,13 +69,13 @@ export default function rustleBabelPlugin({ types: bt }: { types: typeof BabelTy
   return {
     name: 'rustle-dev-extract',
     visitor: {
-      JSXText(path) {
+      JSXText(path: any) {
         const raw = path.node.value;
         const text = normalizeText(raw);
         if (!text || /^\s*$/.test(text)) return;
         fileTexts.add(text);
       },
-      JSXAttribute(path) {
+      JSXAttribute(path: any) {
         if (!bt.isJSXIdentifier(path.node.name)) return;
         const attrName = path.node.name.name;
         if (!isTranslatableAttr(attrName, extraAttrs)) return;
