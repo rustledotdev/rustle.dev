@@ -195,5 +195,13 @@ export async function translateOptimized(
     console.warn(`[rustle] translate failed: ${msg}`);
     return { success: false, error: msg } as const;
   }
+
+  // Any other unexpected success shape -> failure
+  const msg = (res.data as any)?.error
+    ? String((res.data as any).error)
+    : `HTTP ${res.status}: ${res.text ?? 'invalid response'}`;
+  // eslint-disable-next-line no-console
+  console.warn(`[rustle] translate failed: ${msg}`);
+  return { success: false, error: msg } as const;
 }
 
