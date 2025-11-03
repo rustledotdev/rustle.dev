@@ -151,12 +151,10 @@ jobs:
   publish:
     name: Publish to NPM
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: [security-audit, test, build]
     env:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-
-
     environment: npm
     steps:
       - name: Checkout code
