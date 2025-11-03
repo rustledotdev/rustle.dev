@@ -151,7 +151,7 @@ jobs:
   publish:
     name: Publish to NPM
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
     needs: [security-audit, test, build]
     env:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -180,19 +180,21 @@ jobs:
             echo "✅ NPM_TOKEN is configured"
           fi
 
-      - name: Check if version already exists
+      - name: Decide whether to publish (version check)
         if: ${{ env.NPM_TOKEN != '' }}
         run: |
+          PACKAGE_NAME=$(node -p "require('./package.json').name")
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
-          if npm view rustle.dev@$PACKAGE_VERSION version 2>/dev/null; then
-            echo "❌ Version $PACKAGE_VERSION already exists on NPM!"
-            exit 1
+          if npm view "$PACKAGE_NAME@$PACKAGE_VERSION" version >/dev/null 2>&1; then
+            echo "ℹ️ $PACKAGE_NAME@$PACKAGE_VERSION already exists on npm — skipping publish"
+            echo "PUBLISH=false" >> $GITHUB_ENV
+          else
+            echo "✅ $PACKAGE_NAME@$PACKAGE_VERSION not found on npm — will publish"
+            echo "PUBLISH=true" >> $GITHUB_ENV
           fi
-          echo "✅ Version $PACKAGE_VERSION is available for publishing"
 
       - name: Final security check
-        if: ${{ env.NPM_TOKEN != '' }}
-
+        if: ${{ env.NPM_TOKEN != '' && env.PUBLISH == 'true' }}
         run: |
           echo "Final security validation..."
           if grep -r "sk-\|gsk_\|AIza\|localhost:3001" dist/ 2>/dev/null; then
@@ -204,14 +206,13 @@ jobs:
 
 
       - name: Publish to NPM
-        if: ${{ env.NPM_TOKEN != '' }}
-
+        if: ${{ env.NPM_TOKEN != '' && env.PUBLISH == 'true' }}
         run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Verify publication
-        if: ${{ env.NPM_TOKEN != '' }}
+        if: ${{ env.NPM_TOKEN != '' && env.PUBLISH == 'true' }}
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           sleep 30
