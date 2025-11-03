@@ -96,24 +96,6 @@ function requireAuthInProd(cfg: Pick<RustleConfig, 'apiUrl' | 'apiKey'>) {
 }
 
 
-// v1 (compat) - used as fallback
-export async function translateBatch(
-  cfg: Pick<RustleConfig, 'apiUrl' | 'apiKey'>,
-  sourceLanguage: string,
-  targetLanguage: string,
-  items: BatchItem[],
-  model?: string,
-): Promise<BatchResponse> {
-  requireAuthInProd(cfg);
-  const url = joinUrl(cfg.apiUrl, '/translate/batch');
-  const headers = { ...(cfg.apiKey ? { Authorization: `Bearer ${cfg.apiKey}` } : {}) } as Record<string, string>;
-  const body = { entries: items, sourceLanguage, targetLanguage, model } as const;
-  const res = await postJson<BatchResponse>(url, body, headers, 2);
-  if (!res.ok || !res.data) {
-    return { success: false, error: `HTTP ${res.status}: ${res.text ?? 'unknown error'}`, translations: {} };
-  }
-  return res.data;
-}
 
 // v2 optimized API - single request for multiple locales with enriched items
 export type OptimizedItem = {
@@ -206,37 +188,12 @@ export async function translateOptimized(
     return { success: true, byLocale };
   }
 
-  // Log and fallback to v1 per-locale with retry/backoff handled inside translateBatch
-  if (!res.ok) {
+  // No fallback: return error if optimized endpoint fails
+  if (!res.ok || !res.data) {
+    const msg = `HTTP ${res.status}: ${res.text ?? 'unknown error'}`;
     // eslint-disable-next-line no-console
-    console.warn(`[rustle] v2 translate failed HTTP ${res.status}: ${res.text ?? 'unknown'}. Falling back to /translate/batch`);
+    console.warn(`[rustle] translate failed: ${msg}`);
+    return { success: false, error: msg } as const;
   }
-
-  const byLocale: Record<string, Record<string, string>> = { ...byLocaleFromCache };
-  for (const locale of targetLocales) {
-    const byHash = (h: string) => `${locale}|${h}`;
-    const v1Items = items
-      .filter((it) => {
-        const hash = it.contentHash ?? '';
-        const inProcess = CACHE.has(`${locale}|${it.fingerprint}|${hash}`);
-        const persisted = cache?.has(locale, hash) ?? false;
-        return !(inProcess || persisted);
-      })
-      .map((r) => ({ id: r.fingerprint, text: r.content }));
-
-    if (v1Items.length === 0) continue;
-
-    const r = await translateBatch(cfg, sourceLocale, locale, v1Items, model);
-    if (r.success) {
-      for (const [fp, text] of Object.entries(r.translations)) {
-        (byLocale[locale] || (byLocale[locale] = {}))[fp] = text;
-        const original = items.find((x) => x.fingerprint === fp);
-        const hash = original?.contentHash ?? '';
-        CACHE.set(`${locale}|${fp}|${hash}`, text);
-        if (hash) cache?.set(locale, hash, text);
-      }
-    }
-  }
-  return { success: true, byLocale };
 }
 

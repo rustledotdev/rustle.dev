@@ -10,6 +10,8 @@ const items = [
 describe('API client', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
+    // Reset in-process translation cache between tests
+    (translateOptimized as any)._cache = new Map();
   });
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -31,21 +33,18 @@ describe('API client', () => {
     }
   });
 
-  it('falls back to v1 batch per-locale when v2 fails', async () => {
+  it('returns failure when v2 optimized endpoint fails', async () => {
     (globalThis.fetch as any).mockImplementation(async (url: string, init: any) => {
       if (String(url).includes('/translate') && !String(url).includes('/batch')) {
         return new Response('boom', { status: 500 });
-      }
-      if (String(url).includes('/translate/batch')) {
-        return new Response(JSON.stringify({ success: true, translations: { fp1: 'Bonjour' } }), { status: 200 });
       }
       return new Response('not called', { status: 404 });
     });
 
     const res = await translateOptimized(cfg as any, 'en', ['fr'], items as any);
-    expect(res.success).toBe(true);
-    if (res.success) {
-      expect(res.byLocale.fr.fp1).toBe('Bonjour');
+    expect(res.success).toBe(false);
+    if (!res.success) {
+      expect(res.error).toMatch(/HTTP 500/);
     }
   });
 });
